@@ -1,0 +1,53 @@
+{
+  "name": "hono-boilerplate",
+  "version": "0.1.0",
+  "description": "Production-grade Hono + Bun backend boilerplate with BetterAuth, Drizzle, Postgres, and Scalar/OpenAPI",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist",
+    "start": "NODE_ENV=production bun dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "auth:generate": "bunx @better-auth/cli generate --output src/db/schema/auth.ts",
+    "prepare": "simple-git-hooks"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^0.18.4",
+    "@scalar/hono-api-reference": "^0.5.172",
+    "better-auth": "^1.1.13",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.6.14",
+    "hono-rate-limiter": "^0.4.2",
+    "pino": "^9.5.0",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.1.14",
+    "drizzle-kit": "^0.28.1",
+    "lint-staged": "^15.2.11",
+    "pino-pretty": "^13.0.0",
+    "simple-git-hooks": "^2.11.1",
+    "typescript": "^5.7.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bunx lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json}": ["biome check --write --no-errors-on-unmatched"]
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}
