@@ -1,3 +1,4 @@
+import { API_PREFIX } from "@/config/constants";
 import { ErrorBodySchema, successSchema } from "@/lib/response";
 import type { AppBindings } from "@/types/hono";
 import type { OpenAPIHono } from "@hono/zod-openapi";
@@ -47,7 +48,7 @@ export function registerAuthOpenApi(app: OpenAPIHono<AppBindings>) {
 
   reg.registerPath({
     method: "post",
-    path: "/api/auth/sign-up/email",
+    path: `${API_PREFIX}/auth/sign-up/email`,
     tags: ["Auth"],
     summary: "Email + password sign-up",
     request: { body: { content: { "application/json": { schema: SignUpBody } } } },
@@ -66,7 +67,7 @@ export function registerAuthOpenApi(app: OpenAPIHono<AppBindings>) {
 
   reg.registerPath({
     method: "post",
-    path: "/api/auth/sign-in/email",
+    path: `${API_PREFIX}/auth/sign-in/email`,
     tags: ["Auth"],
     summary: "Email + password sign-in",
     request: { body: { content: { "application/json": { schema: SignInBody } } } },
@@ -81,7 +82,7 @@ export function registerAuthOpenApi(app: OpenAPIHono<AppBindings>) {
 
   reg.registerPath({
     method: "post",
-    path: "/api/auth/sign-out",
+    path: `${API_PREFIX}/auth/sign-out`,
     tags: ["Auth"],
     summary: "Sign out",
     security: [{ cookieAuth: [] }],
@@ -95,7 +96,7 @@ export function registerAuthOpenApi(app: OpenAPIHono<AppBindings>) {
 
   reg.registerPath({
     method: "get",
-    path: "/api/auth/get-session",
+    path: `${API_PREFIX}/auth/get-session`,
     tags: ["Auth"],
     summary: "Get current session",
     security: [{ cookieAuth: [] }],

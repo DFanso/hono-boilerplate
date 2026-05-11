@@ -2,6 +2,7 @@ import { buildApp } from "@/app";
 import { closeDb } from "@/db";
 import { env } from "@/env";
 import { logger } from "@/lib/logger";
+import { closeRedis } from "@/lib/redis";
 
 const app = buildApp();
 
@@ -20,7 +21,7 @@ async function shutdown(signal: string) {
   logger.info({ signal }, "shutting down");
   try {
     server.stop(false);
-    await closeDb();
+    await Promise.allSettled([closeDb(), closeRedis()]);
     logger.info("shutdown complete");
     process.exit(0);
   } catch (err) {

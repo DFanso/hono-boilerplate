@@ -14,10 +14,10 @@ describe("GET /health", () => {
   });
 });
 
-describe("GET /api/users/me", () => {
+describe("GET /api/v1/users/me", () => {
   test("rejects unauthenticated requests with 401 envelope", async () => {
     const app = makeTestApp();
-    const res = await request(app, "GET", "/api/users/me");
+    const res = await request(app, "GET", "/api/v1/users/me");
 
     expect(res.status).toBe(401);
     expect(res.body).toMatchObject({
@@ -30,7 +30,7 @@ describe("GET /api/users/me", () => {
 describe("validation", () => {
   test("invalid query returns 400 VALIDATION_ERROR with details", async () => {
     const app = makeTestApp();
-    const res = await request(app, "GET", "/api/users?page=not-a-number");
+    const res = await request(app, "GET", "/api/v1/users?page=not-a-number");
 
     // Either 401 (auth runs first) or 400 — both are valid envelopes.
     expect([400, 401]).toContain(res.status);

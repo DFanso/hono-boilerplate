@@ -7,6 +7,7 @@ export const UserDto = z
     name: z.string(),
     email: z.string().email(),
     emailVerified: z.boolean(),
+    role: z.string(),
     image: z.string().nullable(),
     bio: z.string().nullable(),
     createdAt: z.string(),

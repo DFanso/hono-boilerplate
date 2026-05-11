@@ -10,6 +10,7 @@ type Row = {
   name: string;
   email: string;
   emailVerified: boolean;
+  role: string;
   image: string | null;
   bio: string | null;
   createdAt: Date;
@@ -22,6 +23,7 @@ function toDto(row: Row): UserDtoT {
     name: row.name,
     email: row.email,
     emailVerified: row.emailVerified,
+    role: row.role,
     image: row.image,
     bio: row.bio,
     createdAt: row.createdAt.toISOString(),
@@ -34,6 +36,7 @@ const baseSelect = {
   name: userTable.name,
   email: userTable.email,
   emailVerified: userTable.emailVerified,
+  role: userTable.role,
   image: userTable.image,
   bio: userProfile.bio,
   createdAt: userTable.createdAt,

@@ -1,5 +1,6 @@
+import { recordAudit } from "@/lib/audit";
 import { ErrorBodySchema, ok, paginated, successSchema } from "@/lib/response";
-import { getAuthUser, requireAuth } from "@/middlewares/auth";
+import { getAuthUser, requireAuth, requireRole } from "@/middlewares/auth";
 import { ListUsersQuery, UpdateMeBody, UserDto, UserIdParam } from "@/modules/users/users.schema";
 import * as service from "@/modules/users/users.service";
 import type { AppBindings } from "@/types/hono";
@@ -12,6 +13,10 @@ const errorResponses = {
   },
   401: {
     description: "Unauthorized",
+    content: { "application/json": { schema: ErrorBodySchema } },
+  },
+  403: {
+    description: "Forbidden — insufficient role",
     content: { "application/json": { schema: ErrorBodySchema } },
   },
   404: { description: "Not found", content: { "application/json": { schema: ErrorBodySchema } } },
@@ -55,9 +60,9 @@ const listUsers = createRoute({
   method: "get",
   path: "/users",
   tags: ["Users"],
-  summary: "List users (paginated)",
+  summary: "List users (paginated, admin only)",
   security: [{ cookieAuth: [] }],
-  middleware: [requireAuth] as const,
+  middleware: [requireAuth, requireRole("admin")] as const,
   request: { query: ListUsersQuery },
   responses: {
     200: {
@@ -66,6 +71,7 @@ const listUsers = createRoute({
     },
     400: errorResponses[400],
     401: errorResponses[401],
+    403: errorResponses[403],
   },
 });
 
@@ -93,8 +99,14 @@ export const usersRoutes = new OpenAPIHono<AppBindings>()
     return c.json(ok(dto, { requestId: c.get("requestId") }), 200);
   })
   .openapi(updateMe, async (c) => {
+    const user = getAuthUser(c);
     const body = c.req.valid("json");
-    const dto = await service.updateMe(getAuthUser(c).id, body);
+    const dto = await service.updateMe(user.id, body);
+    await recordAudit(c, "user.update", {
+      resourceType: "user",
+      resourceId: user.id,
+      metadata: { fields: Object.keys(body) },
+    });
     return c.json(ok(dto, { requestId: c.get("requestId") }), 200);
   })
   .openapi(listUsers, async (c) => {

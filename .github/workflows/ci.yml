@@ -28,10 +28,20 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     env:
       NODE_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/hono_boilerplate_test
+      REDIS_URL: redis://localhost:6379
       BETTER_AUTH_SECRET: ci-secret-please-replace-with-a-real-one-32-chars
       BETTER_AUTH_URL: http://localhost:3000
       CORS_ORIGIN: http://localhost:3000

@@ -3,6 +3,7 @@ import { mountDocs } from "@/docs/openapi";
 import { env } from "@/env";
 import { attachSession } from "@/middlewares/auth";
 import { errorHandler, notFoundHandler } from "@/middlewares/error-handler";
+import { idempotency } from "@/middlewares/idempotency";
 import { requestLogger } from "@/middlewares/logger";
 import { rateLimit } from "@/middlewares/rate-limit";
 import { requestId } from "@/middlewares/request-id";
@@ -47,9 +48,11 @@ export function buildApp() {
     }),
   );
   app.use("*", requestLogger);
-  // Auth + rate limit only on API routes — keep /health cheap and dependency-free
+  // Auth + rate limit + idempotency only on API routes — keep /health cheap.
+  // Idempotency must run AFTER attachSession (needs c.get("user")).
   app.use(`${API_PREFIX}/*`, attachSession);
   app.use(`${API_PREFIX}/*`, rateLimit);
+  app.use(`${API_PREFIX}/*`, idempotency);
 
   // Routes
   app.route("/", healthRoutes);

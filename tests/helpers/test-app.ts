@@ -16,10 +16,11 @@ export async function request(
   app: ReturnType<typeof buildApp>,
   method: string,
   path: string,
-  init: { body?: unknown; headers?: Record<string, string> } = {},
+  init: { body?: unknown; headers?: Record<string, string>; cookie?: string } = {},
 ) {
   const headers: Record<string, string> = {
     "content-type": "application/json",
+    ...(init.cookie ? { cookie: init.cookie } : {}),
     ...(init.headers ?? {}),
   };
   const res = await app.fetch(

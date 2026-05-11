@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { UnauthorizedError } from "@/lib/errors";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import type { AppBindings, AppVariables } from "@/types/hono";
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
@@ -53,3 +53,15 @@ export const requireAuth = createMiddleware<AppBindings>(async (c, next) => {
   if (!user || !session) throw new UnauthorizedError();
   await next();
 });
+
+/**
+ * Gates a route on one or more roles. Always compose after `requireAuth` so the
+ * user lookup is guaranteed to have run. Throws `ForbiddenError` (403) on miss.
+ */
+export function requireRole(...roles: string[]) {
+  return createMiddleware<AppBindings>(async (c, next) => {
+    const user = getAuthUser(c);
+    if (!roles.includes(user.role)) throw new ForbiddenError();
+    await next();
+  });
+}

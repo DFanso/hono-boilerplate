@@ -12,7 +12,8 @@ export type ErrorCode =
   | "CONFLICT"
   | "RATE_LIMITED"
   | "INTERNAL_ERROR"
-  | "SERVICE_UNAVAILABLE";
+  | "SERVICE_UNAVAILABLE"
+  | "IDEMPOTENCY_KEY_REUSED";
 
 export class AppError extends Error {
   readonly statusCode: HttpStatusCode;
@@ -64,6 +65,16 @@ export class NotFoundError extends AppError {
 export class ConflictError extends AppError {
   constructor(message = "Conflict", details?: unknown) {
     super({ statusCode: HttpStatus.CONFLICT, code: "CONFLICT", message, details });
+  }
+}
+
+export class IdempotencyKeyReusedError extends AppError {
+  constructor(message = "Idempotency-Key reused with a different request body") {
+    super({
+      statusCode: HttpStatus.CONFLICT,
+      code: "IDEMPOTENCY_KEY_REUSED",
+      message,
+    });
   }
 }
 

@@ -16,6 +16,20 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   app:
     build:
       context: .
@@ -24,10 +38,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/hono_boilerplate
+      REDIS_URL: redis://redis:6379
       BETTER_AUTH_URL: http://localhost:3000
       PORT: 3000
     ports:
@@ -35,3 +52,4 @@ services:
 
 volumes:
   postgres-data:
+  redis-data:

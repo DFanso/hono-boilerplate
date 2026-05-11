@@ -1,4 +1,5 @@
 import { pingDb } from "@/db";
+import { pingRedis } from "@/lib/redis";
 import { ok } from "@/lib/response";
 import { ErrorBodySchema, successSchema } from "@/lib/response";
 import type { AppBindings } from "@/types/hono";
@@ -12,7 +13,7 @@ const HealthSchema = z.object({
 
 const ReadySchema = z.object({
   status: z.enum(["ok", "degraded"]),
-  checks: z.object({ db: z.boolean() }),
+  checks: z.object({ db: z.boolean(), redis: z.boolean() }),
 });
 
 const liveRoute = createRoute({
@@ -57,22 +58,22 @@ export const healthRoutes = new OpenAPIHono<AppBindings>()
     ),
   )
   .openapi(readyRoute, async (c) => {
-    const db = await pingDb();
-    const status = db ? ("ok" as const) : ("degraded" as const);
+    const [db, redis] = await Promise.all([pingDb(), pingRedis()]);
+    const healthy = db && redis;
     const requestId = c.get("requestId");
-    if (!db) {
+    if (!healthy) {
       return c.json(
         {
           success: false as const,
           error: {
             code: "SERVICE_UNAVAILABLE",
             message: "Dependency check failed",
-            details: { db },
+            details: { db, redis },
             requestId,
           },
         },
         503,
       );
     }
-    return c.json(ok({ status, checks: { db } }), 200);
+    return c.json(ok({ status: "ok" as const, checks: { db, redis } }), 200);
   });
