@@ -63,7 +63,7 @@ jobs:
         run: bun run typecheck
 
       - name: Migrate test DB
-        run: bun run db:push
+        run: bunx drizzle-kit push --force
 
       - name: Test
         run: bun test
